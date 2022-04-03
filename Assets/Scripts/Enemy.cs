@@ -11,9 +11,11 @@ public class Enemy : MonoBehaviour
     public float minDamage = 2f;
     public float maxDamage = 5f;
     Animator anim;
+    public float speed = 1f;
     void Start()
     {
         anim = GetComponent<Animator>();
+        anim.speed = speed;
         healthBar.maxValue = maxHealth;
     }
 
@@ -34,7 +36,7 @@ public class Enemy : MonoBehaviour
         anim.SetTrigger("Hurt");
         if(health <= 0)
         {
-            Kill();
+            anim.SetTrigger("Kill");
         }
     }
 
@@ -46,19 +48,25 @@ public class Enemy : MonoBehaviour
 
     public void Drain()
     {
-        float temp = GameManager.gameManager.bloodCurve.Evaluate(health / maxHealth) * maxHealth;
+        GameManager.gameManager.player.GetComponent<Animator>().SetTrigger("Attack");
+        float temp = GameManager.gameManager.bloodCurve.Evaluate(health / maxHealth) * (maxHealth*2f);
         if (temp <= 0) { temp = 0; }
         GameManager.gameManager.collectedBlood += temp;
         GameManager.gameManager.actionMode = mode.Normal;
-        Kill();
+        GameManager.gameManager.particles[GameManager.gameManager.currentEnemies.IndexOf(this)].emission.SetBurst(0, new ParticleSystem.Burst(0f,temp*10));
+        GameManager.gameManager.particles[GameManager.gameManager.currentEnemies.IndexOf(this)].Play();
+
+        anim.SetTrigger("Drain");
     }
 
     public void Click()
     {
         if (GameManager.gameManager.actionMode == mode.Attack)
         {
+            GameManager.gameManager.player.GetComponent<Animator>().SetTrigger("Attack");
             Damage(GameManager.gameManager.getDamage(GameManager.gameManager.weapon));
             GameManager.gameManager.acted = true;
+            GameManager.gameManager.BlockCards();
             GameManager.gameManager.attackCard.DestroyCard();
             GameManager.gameManager.actionMode = mode.Normal;
         }

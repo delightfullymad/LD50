@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: Attack
   cardColour: {r: 1, g: 0, b: 0, a: 1}
-  cardImage: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  cardImage: {fileID: 21300000, guid: fd9d027197b3c684ab0f2a34657c0c92, type: 3}
   cardDescription: Attack with your weapon
   type: 0
   heal: 0

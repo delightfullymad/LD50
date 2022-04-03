@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public enum mode { Normal, Attack, Drain}
 
@@ -12,6 +13,8 @@ public class GameManager : MonoBehaviour
     public UI ui;
     public bool acted = false;
     public bool playerTurn = true;
+    public GameObject player;
+
 
     public float dayLength = 30f;
     public float timeLeft = 30f;
@@ -26,6 +29,10 @@ public class GameManager : MonoBehaviour
     public CardInfo[] allCards;
     public GameObject[] allEnemies;
     public Transform[] spawnPoints;
+    public ParticleSystem[] particles;
+    public ParticleSystem roomParticles;
+    public ParticleSystem sacrificeParticles;
+
 
     public List<Enemy> currentEnemies;
 
@@ -36,6 +43,9 @@ public class GameManager : MonoBehaviour
     public float maxHealth = 75;
     public Weapon weapon;
     public Armour armour;
+    public Transform equipSlot;
+    public float damageMod = 1f;
+
     public mode actionMode = mode.Normal;
 
     public AnimationCurve bloodCurve;
@@ -43,6 +53,15 @@ public class GameManager : MonoBehaviour
     public Button endTurnButton;
     public Button drainButton;
 
+    public Button newDayButton;
+    public Button sacrificeButton;
+
+    public Transform sky;
+    public SpriteRenderer hills;
+    public Color hillColourDay;
+    public Color hillColourNight;
+
+    public Image eyes;
 
     private void Awake()
     {
@@ -61,7 +80,29 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        if(equipSlot.GetComponent<SpriteRenderer>().sprite != weapon.sprite)
+        {
+            equipSlot.GetComponent<SpriteRenderer>().sprite = weapon.sprite;
+        }
+
+        if(acted)
+        {
+            endTurnButton.GetComponent<Outline>().enabled = true;
+        }
+        else
+        {
+            endTurnButton.GetComponent<Outline>().enabled = false;
+        }
+
         timeLeft -= 1 * Time.deltaTime;
+        sky.position = Vector3.Lerp(new Vector3(3f, -7f, 0f), new Vector3(3f, 7f, 0f), timeLeft / dayLength);
+        hills.color = Color.Lerp(hillColourNight, hillColourDay, timeLeft / dayLength);
+
+        Color eyeTemp = eyes.color;
+        eyeTemp.a = (100f - childHealth) / 100f;
+        eyes.color = eyeTemp;
+
         if(health > maxHealth)
         {
             health = maxHealth;
@@ -73,12 +114,15 @@ public class GameManager : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
+        
         if (defending)
         {
+            player.GetComponent<Animator>().SetTrigger("Defend");
             defending = false;
         }
         else 
         {
+            player.GetComponent<Animator>().SetTrigger("Hit");
             float temp = (damage - armour.value);
             if (temp > 0f) {
                 health -= temp;
@@ -105,7 +149,9 @@ public class GameManager : MonoBehaviour
 
     public float getDamage(Weapon weapon)
     {
-        return Random.Range(weapon.minDamage, weapon.maxDamage);
+        float dam = Random.Range(weapon.minDamage, weapon.maxDamage) * damageMod; ;
+        damageMod = 1;
+        return dam;
     }
 
     public void DrawCard()
@@ -123,6 +169,12 @@ public class GameManager : MonoBehaviour
         endTurnButton.interactable = true;
         drainButton.interactable = true;
         acted = false;
+
+        foreach (Transform child in GameManager.gameManager.cardPanel)
+        {
+            child.GetComponentInChildren<Button>().interactable = true;
+        }
+
         DrawCard();
     }
 
@@ -159,9 +211,24 @@ public class GameManager : MonoBehaviour
 
     public void RespawnEnemies()
     {
-        for (int i = 0; i < Random.Range(1, 3); i++)
+        int maxEnemy = 0;
+        if(day== 1)
         {
-            GameObject e = Instantiate(allEnemies[Random.Range(0, allEnemies.Length)], spawnPoints[i]);
+            maxEnemy = 0;
+        }
+        else if (day <=3)
+        {
+            maxEnemy = 1;
+        }
+        else if (day > 3)
+        {
+            maxEnemy = 2;
+        }
+
+
+        for (int i = 0; i < Random.Range(1, 4); i++)
+        {
+            GameObject e = Instantiate(allEnemies[Random.Range(0, maxEnemy)], spawnPoints[i]);
             e.transform.position = spawnPoints[i].transform.position;
             currentEnemies.Add(e.GetComponent<Enemy>());
         }
@@ -170,12 +237,15 @@ public class GameManager : MonoBehaviour
 
     public void PanLeft()
     {
-        Camera.main.GetComponent<Animator>().SetBool("Left", true);
+        Camera.main.GetComponent<Animator>().SetBool("Right", false);
+        sacrificeButton.interactable = false;
+        newDayButton.interactable = false;
     }
 
     public void PanRight()
     {
-        Camera.main.GetComponent<Animator>().SetBool("Left", false);
+        Camera.main.GetComponent<Animator>().SetBool("Right", true);
+        timeLeft = dayLength+3f;
     }
 
     public void EndDay()
@@ -183,10 +253,11 @@ public class GameManager : MonoBehaviour
         foreach (Transform child in cardPanel)
             Destroy(child.gameObject);
 
+        numofCards = 0;
         StartCoroutine(TransferBlood(3f));
         health = maxHealth;
-
         
+
 
 
         dayEnded = true;
@@ -212,13 +283,35 @@ public class GameManager : MonoBehaviour
         StartPlayerTurn();
     }
 
-    public void SacrificeHealth()
+    public void Sacrifice()
     {
-        if (maxHealth > 10f)
+        StartCoroutine(SacrificeHealth(2f));
+    }
+
+    public IEnumerator SacrificeHealth(float duration)
+    {
+        if (maxHealth > 10f && childHealth < 100f)
         {
+            sacrificeButton.interactable = false;
+            newDayButton.interactable = false;
             maxHealth -= 10f;
             health = maxHealth;
             childHealth += 25f;
+
+            float time = 0;
+            float childBloodStart = childHealth;
+            var emission = sacrificeParticles.emission;
+            while (time < duration)
+            {
+                emission.enabled = true;
+                childHealth = Mathf.Lerp(childBloodStart, childBloodStart + 25f, time / duration);
+                time += Time.deltaTime;
+                yield return null;
+            }
+            emission.enabled = false;
+            childHealth = childBloodStart + 10f;
+            sacrificeButton.interactable = true;
+            newDayButton.interactable = true;
         }
     }
 
@@ -227,18 +320,25 @@ public class GameManager : MonoBehaviour
         float time = 0;
         float collectedStart = collectedBlood;
         float childBloodStart = childHealth;
-
+        var emission = roomParticles.emission;
+        emission.enabled = true;
         while(time<duration)
         {
             collectedBlood = Mathf.Lerp(collectedStart, 0, time / duration);
             childHealth = Mathf.Lerp(childBloodStart, childBloodStart + collectedStart, time / duration);
+            if(collectedBlood == 0)
+            {
+                emission.enabled = false;
+                time = duration;
+            }
             time += Time.deltaTime;
             yield return null;
         }
-
+        sacrificeButton.interactable = true;
+        newDayButton.interactable = true;
         collectedBlood = 0f;
         childHealth = childBloodStart + collectedStart;
-
+        emission.enabled = false;
         StartCoroutine(Hunger(3f));
 
     }
@@ -265,6 +365,25 @@ public class GameManager : MonoBehaviour
         {
             childHealth = 100f;
         }
+    }
+
+    public void BlockCards()
+    {
+        foreach (Transform child in GameManager.gameManager.cardPanel)
+        {
+            child.GetComponentInChildren<Button>().interactable = false;
+        }
+    }
+
+
+    public void RestartGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void quitGame()
+    {
+        Application.Quit();
     }
 
 }

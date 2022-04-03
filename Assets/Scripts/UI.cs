@@ -26,7 +26,9 @@ public class UI : MonoBehaviour
     {
         timer.maxValue = GameManager.gameManager.dayLength;
         healthbar.value = GameManager.gameManager.health;
+        healthbar2.value = GameManager.gameManager.health;
         healthbarLimit.value = 100 - GameManager.gameManager.maxHealth;
+        healthbarLimit2.value = 100 - GameManager.gameManager.maxHealth;
     }
 
     // Update is called once per frame

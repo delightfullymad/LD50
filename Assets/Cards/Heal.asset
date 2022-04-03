@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: Heal
   cardColour: {r: 0.061502814, g: 1, b: 0, a: 1}
-  cardImage: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  cardImage: {fileID: 21300000, guid: 6f88725532b1b014084f0a083b0676da, type: 3}
   cardDescription: Heal for 10
   type: 2
   heal: 10

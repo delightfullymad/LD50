@@ -14,6 +14,8 @@ public class CardInfo : ScriptableObject
 
     public cardType type = cardType.Attack;
     public float heal;
+    public float attackMod = 1;
+
 
     public Weapon weapon;
     public Armour armour;

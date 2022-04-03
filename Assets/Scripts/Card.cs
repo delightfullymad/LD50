@@ -76,27 +76,34 @@ public class Card : MonoBehaviour
     public void UseCard()
     {
         GameManager.gameManager.actionMode = mode.Normal;
-        switch (card.type)
+        GameManager.gameManager.damageMod = 1;
+
+
+            switch (card.type)
         {
             case cardType.Attack:
                 GameManager.gameManager.actionMode = mode.Attack;
                 GameManager.gameManager.attackCard = GetComponent<Card>();
+                GameManager.gameManager.damageMod = card.attackMod;
                 break;
 
             case cardType.Defence:
                 GameManager.gameManager.defending = true;
                 GameManager.gameManager.acted = true;
+                GameManager.gameManager.BlockCards();
                 DestroyCard();
                 break;
 
             case cardType.Heal:
                 GameManager.gameManager.health += card.heal;
                 GameManager.gameManager.acted = true;
+                GameManager.gameManager.BlockCards();
                 DestroyCard();
                 break;
 
             case cardType.Weapon:
                 GameManager.gameManager.weapon = card.weapon;
+                GameManager.gameManager.BlockCards();
                 GameManager.gameManager.acted = true;
                 DestroyCard();
                 break;
@@ -104,6 +111,7 @@ public class Card : MonoBehaviour
             case cardType.Armour:
                 GameManager.gameManager.armour = card.armour;
                 GameManager.gameManager.acted = true;
+                GameManager.gameManager.BlockCards();
                 DestroyCard();
                 break;
             default:

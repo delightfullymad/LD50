@@ -7,4 +7,5 @@ public class Weapon : ScriptableObject
 {
     public float minDamage;
     public float maxDamage;
+    public Sprite sprite;
 }

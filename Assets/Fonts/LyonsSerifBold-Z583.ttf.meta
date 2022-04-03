@@ -1,0 +1,23 @@
+fileFormatVersion: 2
+guid: 0f863051d3658d74fb7cae2c3249aa77
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontNames:
+  - Lyons Serif
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 58f4eb1146fe1d940818cadc9bbb5024, type: 3}
+  - {fileID: 12800000, guid: c841a2647c25d8f48bf412a7d000674b, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

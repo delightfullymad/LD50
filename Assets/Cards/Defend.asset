@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: Defend
   cardColour: {r: 0.14346743, g: 0.8459561, b: 0.9811321, a: 1}
-  cardImage: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  cardImage: {fileID: 21300000, guid: bbfaa98adcb70f2498fe7f6bb1d86642, type: 3}
   cardDescription: Block the next attack
   type: 1
   heal: 0
