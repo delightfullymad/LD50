@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8707f4137fccf184192f44a34fca8ad6, type: 3}
-  m_Name: Heal
+  m_Name: bomb
   m_EditorClassIdentifier: 
-  cardName: Heal
-  cardColour: {r: 0.061502814, g: 1, b: 0, a: 1}
-  cardImage: {fileID: 21300000, guid: 6f88725532b1b014084f0a083b0676da, type: 3}
-  cardDescription: Heal for 50
-  type: 2
-  heal: 50
+  cardName: Bomb
+  cardColour: {r: 1, g: 0, b: 0, a: 1}
+  cardImage: {fileID: 21300000, guid: ea58d294b312c2945bd81c79c32384d8, type: 3}
+  cardDescription: 10 DMG to all enemies
+  type: 5
+  heal: 0
   attackMod: 1
-  damage: 0
+  damage: 10
   weapon: {fileID: 0}
   armour: {fileID: 0}

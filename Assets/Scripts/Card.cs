@@ -51,6 +51,7 @@ public class Card : MonoBehaviour
     {
         if (GameManager.gameManager.acted == false)
         {
+            GameManager.gameManager.SFX.PlayOneShot(GameManager.gameManager.cardSlide);
             anim.SetBool("Hover", true);
         }
     }
@@ -77,7 +78,7 @@ public class Card : MonoBehaviour
     {
         GameManager.gameManager.actionMode = mode.Normal;
         GameManager.gameManager.damageMod = 1;
-
+        GameManager.gameManager.SFX.PlayOneShot(GameManager.gameManager.use);
 
             switch (card.type)
         {
@@ -91,6 +92,7 @@ public class Card : MonoBehaviour
                 GameManager.gameManager.defending = true;
                 GameManager.gameManager.acted = true;
                 GameManager.gameManager.BlockCards();
+                GameManager.gameManager.SFX.PlayOneShot(GameManager.gameManager.shield);
                 DestroyCard();
                 break;
 
@@ -98,6 +100,7 @@ public class Card : MonoBehaviour
                 GameManager.gameManager.health += card.heal;
                 GameManager.gameManager.acted = true;
                 GameManager.gameManager.BlockCards();
+                GameManager.gameManager.SFX.PlayOneShot(GameManager.gameManager.heal);
                 DestroyCard();
                 break;
 
@@ -112,8 +115,19 @@ public class Card : MonoBehaviour
                 GameManager.gameManager.armour = card.armour;
                 GameManager.gameManager.acted = true;
                 GameManager.gameManager.BlockCards();
+                GameManager.gameManager.SFX.PlayOneShot(GameManager.gameManager.use);
                 DestroyCard();
                 break;
+
+            case cardType.AttackAll:
+                foreach (Enemy enemy in GameManager.gameManager.currentEnemies)
+                {
+                    enemy.Damage(card.damage * card.attackMod);
+                }
+                GameManager.gameManager.SFX.PlayOneShot(GameManager.gameManager.bomb);
+                DestroyCard();
+                break;
+
             default:
 
                 break;
@@ -124,6 +138,8 @@ public class Card : MonoBehaviour
     public void DestroyCard()
     {
         GameManager.gameManager.numofCards--;
+        GameManager.gameManager.SFX.PlayOneShot(GameManager.gameManager.discard);
+
         Destroy(transform.parent.gameObject);
     }
 

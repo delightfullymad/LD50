@@ -21,6 +21,8 @@ public class UI : MonoBehaviour
 
     public Slider timer;
 
+    public TMP_Text daysSurvived;
+
     // Start is called before the first frame update
     void Start()
     {

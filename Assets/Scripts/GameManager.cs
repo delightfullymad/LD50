@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.Audio;
 
 public enum mode { Normal, Attack, Drain}
 
@@ -14,6 +15,21 @@ public class GameManager : MonoBehaviour
     public bool acted = false;
     public bool playerTurn = true;
     public GameObject player;
+    
+    public AudioMixer room;
+    public AudioMixer battle;
+
+    public AudioClip[] hitSounds;
+    public AudioClip blood;
+    public AudioClip cardSlide;
+    public AudioClip discard;
+    public AudioClip drain;
+    public AudioClip use;
+    public AudioClip kill;
+    public AudioClip bomb;
+    public AudioClip shield;
+    public AudioClip heal;
+    public AudioSource SFX;
 
 
     public float dayLength = 30f;
@@ -60,16 +76,18 @@ public class GameManager : MonoBehaviour
     public SpriteRenderer hills;
     public Color hillColourDay;
     public Color hillColourNight;
-
+    public GameObject gameOver;
     public Image eyes;
 
     private void Awake()
     {
+        
         gameManager = GetComponent<GameManager>();
     }
     // Start is called before the first frame update
     void Start()
     {
+        battle.SetFloat("musicVol", -50f);
         //NewDay();
         playerTurn = false;
         endTurnButton.interactable = false;
@@ -80,7 +98,11 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if(health <= 0f || childHealth <= 0f)
+        {
+            gameOver.SetActive(true);
+            ui.daysSurvived.text = "You survived for " + day + " days.";
+        }
         if(equipSlot.GetComponent<SpriteRenderer>().sprite != weapon.sprite)
         {
             equipSlot.GetComponent<SpriteRenderer>().sprite = weapon.sprite;
@@ -111,6 +133,8 @@ public class GameManager : MonoBehaviour
         //childHealth -= 1f * Time.deltaTime;
 
     }
+
+    
 
     public void TakeDamage(float damage)
     {
@@ -211,20 +235,21 @@ public class GameManager : MonoBehaviour
 
     public void RespawnEnemies()
     {
-        int maxEnemy = 0;
-        if(day== 1)
-        {
-            maxEnemy = 0;
-        }
-        else if (day <=3)
+        int maxEnemy = 1;
+        if(day == 1)
         {
             maxEnemy = 1;
         }
-        else if (day > 3)
+        else if (day >= 2 && day <= 3)
         {
             maxEnemy = 2;
         }
+        else if (day >= 4)
+        {
+            maxEnemy = 3;
+        }
 
+        //Debug.Log(maxEnemy);
 
         for (int i = 0; i < Random.Range(1, 4); i++)
         {
@@ -238,6 +263,7 @@ public class GameManager : MonoBehaviour
     public void PanLeft()
     {
         Camera.main.GetComponent<Animator>().SetBool("Right", false);
+        StartCoroutine(TransitionMusic(room, battle, 3f));
         sacrificeButton.interactable = false;
         newDayButton.interactable = false;
     }
@@ -245,6 +271,7 @@ public class GameManager : MonoBehaviour
     public void PanRight()
     {
         Camera.main.GetComponent<Animator>().SetBool("Right", true);
+        StartCoroutine(TransitionMusic(battle, room, 3f));
         timeLeft = dayLength+3f;
     }
 
@@ -255,12 +282,27 @@ public class GameManager : MonoBehaviour
 
         numofCards = 0;
         StartCoroutine(TransferBlood(3f));
-        health = maxHealth;
+        health += 50;
         
 
 
 
         dayEnded = true;
+    }
+
+    public IEnumerator TransitionMusic(AudioMixer var1, AudioMixer var2, float duration)
+    {
+        float time = 0;
+
+        while (time < duration)
+        {
+            float vol2 = Mathf.Lerp(0f, -50f, time / duration);
+            float vol1 = Mathf.Lerp(-50f, 0f, time / duration);
+            time += Time.deltaTime;
+            var1.SetFloat("musicVol", vol1);
+            var2.SetFloat("musicVol", vol2);
+            yield return null;
+        }
     }
 
     public void NewDay()
@@ -269,7 +311,7 @@ public class GameManager : MonoBehaviour
         DrawCard();
         DrawCard();
         //RespawnEnemies();
-        GameObject e = Instantiate(allEnemies[Random.Range(0, allEnemies.Length)], spawnPoints[0]);
+        GameObject e = Instantiate(allEnemies[0], spawnPoints[0]);
         e.transform.position = spawnPoints[0].transform.position;
         currentEnemies.Add(e.GetComponent<Enemy>());
         timeLeft = dayLength;
@@ -294,6 +336,7 @@ public class GameManager : MonoBehaviour
         {
             sacrificeButton.interactable = false;
             newDayButton.interactable = false;
+            SFX.PlayOneShot(drain);
             maxHealth -= 10f;
             health = maxHealth;
             childHealth += 25f;
@@ -322,6 +365,7 @@ public class GameManager : MonoBehaviour
         float childBloodStart = childHealth;
         var emission = roomParticles.emission;
         emission.enabled = true;
+        SFX.PlayOneShot(blood);
         while(time<duration)
         {
             collectedBlood = Mathf.Lerp(collectedStart, 0, time / duration);

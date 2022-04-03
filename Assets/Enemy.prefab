@@ -653,11 +653,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adb961f0b334af64ba152aeb667f9d55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 10
-  health: 10
+  maxHealth: 11
+  health: 11
   healthBar: {fileID: 8664651361692964814}
   minDamage: 10
   maxDamage: 15
+  speed: 1
 --- !u!114 &8664651363349071989
 MonoBehaviour:
   m_ObjectHideFlags: 0

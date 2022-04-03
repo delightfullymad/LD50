@@ -30,12 +30,14 @@ public class Enemy : MonoBehaviour
         else GetComponent<Button>().interactable = true;
     }
 
-    void Damage(float dam)
+    public void Damage(float dam)
     {
         health -= dam;
         anim.SetTrigger("Hurt");
-        if(health <= 0)
+        GameManager.gameManager.SFX.PlayOneShot(GameManager.gameManager.hitSounds[Random.Range(0,GameManager.gameManager.hitSounds.Length)]);
+        if (health <= 0)
         {
+            GameManager.gameManager.SFX.PlayOneShot(GameManager.gameManager.kill);
             anim.SetTrigger("Kill");
         }
     }
@@ -55,7 +57,7 @@ public class Enemy : MonoBehaviour
         GameManager.gameManager.actionMode = mode.Normal;
         GameManager.gameManager.particles[GameManager.gameManager.currentEnemies.IndexOf(this)].emission.SetBurst(0, new ParticleSystem.Burst(0f,temp*10));
         GameManager.gameManager.particles[GameManager.gameManager.currentEnemies.IndexOf(this)].Play();
-
+        GameManager.gameManager.SFX.PlayOneShot(GameManager.gameManager.drain);
         anim.SetTrigger("Drain");
     }
 
@@ -84,6 +86,7 @@ public class Enemy : MonoBehaviour
 
     public void Attack()
     {
+        GameManager.gameManager.SFX.PlayOneShot(GameManager.gameManager.hitSounds[Random.Range(0, GameManager.gameManager.hitSounds.Length)]);
         GameManager.gameManager.TakeDamage(Random.Range(minDamage, maxDamage));
     }
 
