@@ -15,10 +15,11 @@ MonoBehaviour:
   cardName: Bomb
   cardColour: {r: 1, g: 0, b: 0, a: 1}
   cardImage: {fileID: 21300000, guid: ea58d294b312c2945bd81c79c32384d8, type: 3}
-  cardDescription: 10 DMG to all enemies
+  cardDescription: 7-10 DMG to all enemies
   type: 5
   heal: 0
   attackMod: 1
-  damage: 10
+  minDamage: 7
+  maxDamage: 10
   weapon: {fileID: 0}
   armour: {fileID: 0}

@@ -51,7 +51,7 @@ public class Enemy : MonoBehaviour
     public void Drain()
     {
         GameManager.gameManager.player.GetComponent<Animator>().SetTrigger("Attack");
-        float temp = GameManager.gameManager.bloodCurve.Evaluate(health / maxHealth) * (maxHealth*2f);
+        float temp = GameManager.gameManager.bloodCurve.Evaluate(health / maxHealth) * (maxHealth);
         if (temp <= 0) { temp = 0; }
         GameManager.gameManager.collectedBlood += temp;
         GameManager.gameManager.actionMode = mode.Normal;
@@ -67,8 +67,12 @@ public class Enemy : MonoBehaviour
         {
             GameManager.gameManager.player.GetComponent<Animator>().SetTrigger("Attack");
             Damage(GameManager.gameManager.getDamage(GameManager.gameManager.weapon));
+            GameManager.gameManager.actions--;
+            if(GameManager.gameManager.actions <= 0)
+            {
             GameManager.gameManager.acted = true;
             GameManager.gameManager.BlockCards();
+            }
             GameManager.gameManager.attackCard.DestroyCard();
             GameManager.gameManager.actionMode = mode.Normal;
         }

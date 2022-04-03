@@ -13,6 +13,7 @@ public class Card : MonoBehaviour
     public Image cardColour;
     public Image cardImage;
     public TMP_Text cardDescription;
+    public TMP_Text buttonText;
     public bool overButton;
 
 
@@ -35,6 +36,7 @@ public class Card : MonoBehaviour
         if(!overButton && Input.GetMouseButtonDown(0) && anim.GetBool("Click")== true && anim.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.5f)
         {
             anim.SetTrigger("Return");
+            buttonText.text = "Use Card";
         }
     }
 
@@ -65,6 +67,7 @@ public class Card : MonoBehaviour
     {
         if (anim.GetBool("Click") == false && anim.GetBool("Hover"))
         {
+            buttonText.text = "Use Card";
             anim.SetBool("Click", true);
         }
         
@@ -86,35 +89,52 @@ public class Card : MonoBehaviour
                 GameManager.gameManager.actionMode = mode.Attack;
                 GameManager.gameManager.attackCard = GetComponent<Card>();
                 GameManager.gameManager.damageMod = card.attackMod;
+                buttonText.text = "Select target";
                 break;
 
             case cardType.Defence:
                 GameManager.gameManager.defending = true;
-                GameManager.gameManager.acted = true;
-                GameManager.gameManager.BlockCards();
+                GameManager.gameManager.actions--;
+                if (GameManager.gameManager.actions <= 0)
+                {
+                    GameManager.gameManager.acted = true;
+                    GameManager.gameManager.BlockCards();
+                }
                 GameManager.gameManager.SFX.PlayOneShot(GameManager.gameManager.shield);
                 DestroyCard();
                 break;
 
             case cardType.Heal:
                 GameManager.gameManager.health += card.heal;
-                GameManager.gameManager.acted = true;
-                GameManager.gameManager.BlockCards();
+                GameManager.gameManager.actions--;
+                if (GameManager.gameManager.actions <= 0)
+                {
+                    GameManager.gameManager.acted = true;
+                    GameManager.gameManager.BlockCards();
+                }
                 GameManager.gameManager.SFX.PlayOneShot(GameManager.gameManager.heal);
                 DestroyCard();
                 break;
 
             case cardType.Weapon:
                 GameManager.gameManager.weapon = card.weapon;
-                GameManager.gameManager.BlockCards();
-                GameManager.gameManager.acted = true;
+                GameManager.gameManager.actions--;
+                if (GameManager.gameManager.actions <= 0)
+                {
+                    GameManager.gameManager.acted = true;
+                    GameManager.gameManager.BlockCards();
+                }
                 DestroyCard();
                 break;
 
             case cardType.Armour:
                 GameManager.gameManager.armour = card.armour;
-                GameManager.gameManager.acted = true;
-                GameManager.gameManager.BlockCards();
+                GameManager.gameManager.actions--;
+                if (GameManager.gameManager.actions <= 0)
+                {
+                    GameManager.gameManager.acted = true;
+                    GameManager.gameManager.BlockCards();
+                }
                 GameManager.gameManager.SFX.PlayOneShot(GameManager.gameManager.use);
                 DestroyCard();
                 break;
@@ -122,7 +142,13 @@ public class Card : MonoBehaviour
             case cardType.AttackAll:
                 foreach (Enemy enemy in GameManager.gameManager.currentEnemies)
                 {
-                    enemy.Damage(card.damage * card.attackMod);
+                    enemy.Damage(Random.Range(card.minDamage,card.maxDamage) * card.attackMod);
+                }
+                GameManager.gameManager.actions--;
+                if (GameManager.gameManager.actions <= 0)
+                {
+                    GameManager.gameManager.acted = true;
+                    GameManager.gameManager.BlockCards();
                 }
                 GameManager.gameManager.SFX.PlayOneShot(GameManager.gameManager.bomb);
                 DestroyCard();

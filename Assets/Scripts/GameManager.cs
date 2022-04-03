@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     public static GameManager gameManager;
     public UI ui;
     public bool acted = false;
+    public int actions = 2;
     public bool playerTurn = true;
     public GameObject player;
     
@@ -76,8 +77,17 @@ public class GameManager : MonoBehaviour
     public SpriteRenderer hills;
     public Color hillColourDay;
     public Color hillColourNight;
-    public GameObject gameOver;
     public Image eyes;
+    public TMP_Text actionsLeft;
+
+    public GameObject gameOver;
+    public GameObject menu;
+
+
+    public void closeMenu()
+    {
+        menu.GetComponent<Animator>().SetTrigger("Close");
+    }
 
     private void Awake()
     {
@@ -98,6 +108,13 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        if (menu.activeInHierarchy == true && menu.GetComponent<CanvasGroup>().alpha <= 0)
+        {
+            menu.SetActive(false);
+        }
+
+        actionsLeft.text = actions.ToString();
         if(health <= 0f || childHealth <= 0f)
         {
             gameOver.SetActive(true);
@@ -193,12 +210,14 @@ public class GameManager : MonoBehaviour
         endTurnButton.interactable = true;
         drainButton.interactable = true;
         acted = false;
+        actions = 2;
 
         foreach (Transform child in GameManager.gameManager.cardPanel)
         {
             child.GetComponentInChildren<Button>().interactable = true;
         }
 
+        DrawCard();
         DrawCard();
     }
 

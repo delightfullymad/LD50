@@ -15,10 +15,11 @@ MonoBehaviour:
   cardName: Heal
   cardColour: {r: 0.061502814, g: 1, b: 0, a: 1}
   cardImage: {fileID: 21300000, guid: 6f88725532b1b014084f0a083b0676da, type: 3}
-  cardDescription: Heal for 50
+  cardDescription: Heal for 25
   type: 2
-  heal: 50
+  heal: 25
   attackMod: 1
-  damage: 0
+  minDamage: 0
+  maxDamage: 0
   weapon: {fileID: 0}
   armour: {fileID: 0}
