@@ -10,10 +10,14 @@ public class UI : MonoBehaviour
     public Slider healthbar;
     public Slider healthbarLimit;
     public Slider collectedBlood;
+    public Slider collectedBlood2;
+
 
     public Slider healthbar2;
     public Slider healthbarLimit2;
     public Slider childBlood2;
+
+    public TMP_Text hunger;
 
     public Slider timer;
 
@@ -39,6 +43,8 @@ public class UI : MonoBehaviour
         healthbarLimit2.value = 100 - GameManager.gameManager.maxHealth;
 
         collectedBlood.value = GameManager.gameManager.collectedBlood;
+        collectedBlood2.value = GameManager.gameManager.collectedBlood;
+
         childBlood2.value = GameManager.gameManager.childHealth;
 
         if (GameManager.gameManager.weapon != null)

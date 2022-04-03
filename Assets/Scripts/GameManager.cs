@@ -2,18 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public enum mode { Normal, Attack, Drain}
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager gameManager;
+    public UI ui;
     public bool acted = false;
     public bool playerTurn = true;
 
     public float dayLength = 30f;
     public float timeLeft = 30f;
     public bool dayEnded;
+    public int day = 0;
 
     public Card attackCard;
     public int maxCards = 3;
@@ -48,7 +51,11 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        NewDay();
+        //NewDay();
+        playerTurn = false;
+        endTurnButton.interactable = false;
+        drainButton.interactable = false;
+        dayEnded = true;
     }
 
     // Update is called once per frame
@@ -174,9 +181,14 @@ public class GameManager : MonoBehaviour
     public void EndDay()
     {
         foreach (Transform child in cardPanel)
-            Destroy(child);
+            Destroy(child.gameObject);
 
+        StartCoroutine(TransferBlood(3f));
         health = maxHealth;
+
+        
+
+
         dayEnded = true;
     }
 
@@ -190,7 +202,13 @@ public class GameManager : MonoBehaviour
         e.transform.position = spawnPoints[0].transform.position;
         currentEnemies.Add(e.GetComponent<Enemy>());
         timeLeft = dayLength;
+
+        Color col = ui.hunger.color;
+        col.a = 0;
+        ui.hunger.color = col;
+
         dayEnded = false;
+        day++;
         StartPlayerTurn();
     }
 
@@ -201,6 +219,51 @@ public class GameManager : MonoBehaviour
             maxHealth -= 10f;
             health = maxHealth;
             childHealth += 25f;
+        }
+    }
+
+    public IEnumerator TransferBlood(float duration)
+    {
+        float time = 0;
+        float collectedStart = collectedBlood;
+        float childBloodStart = childHealth;
+
+        while(time<duration)
+        {
+            collectedBlood = Mathf.Lerp(collectedStart, 0, time / duration);
+            childHealth = Mathf.Lerp(childBloodStart, childBloodStart + collectedStart, time / duration);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        collectedBlood = 0f;
+        childHealth = childBloodStart + collectedStart;
+
+        StartCoroutine(Hunger(3f));
+
+    }
+
+    public IEnumerator Hunger(float duration)
+    {
+        float time = 0;
+        float childBloodStart = childHealth;
+
+        while (time < 3f)
+        {
+            Color col = ui.hunger.color;
+            col.a = Mathf.Lerp(0f, 1f, time / 3f);
+            ui.hunger.color = col;
+
+            childHealth = Mathf.Lerp(childBloodStart, childBloodStart - (5*day), time / duration);
+
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        childHealth = childBloodStart - (5 * day);
+        if (childHealth >= 100f)
+        {
+            childHealth = 100f;
         }
     }
 
