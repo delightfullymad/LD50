@@ -417,13 +417,19 @@ public class GameManager : MonoBehaviour
             col.a = Mathf.Lerp(0f, 1f, time / 3f);
             ui.hunger.color = col;
 
-            childHealth = Mathf.Lerp(childBloodStart, childBloodStart - (5*day), time / duration);
-
+            if (day <= 10)
+            {
+                childHealth = Mathf.Lerp(childBloodStart, childBloodStart - (10 * day), time / duration);
+            }
+            else
+            {
+                childHealth = Mathf.Lerp(childBloodStart, childBloodStart - (99), time / duration);
+            }
             time += Time.deltaTime;
             yield return null;
         }
 
-        childHealth = childBloodStart - (5 * day);
+        childHealth = childBloodStart - (10 * day);
         if (childHealth >= 100f)
         {
             childHealth = 100f;
